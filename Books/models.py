@@ -20,8 +20,11 @@ class Author(models.Model):
         verbose_name = _('автор')
         verbose_name_plural = _('авторы')
 
+    def full_name(self):
+        return f'{self.first_name[0]}. {self.last_name}'
+
     def __str__(self):
-        return f'{self.last_name} {self.first_name}'
+        return self.pseudonym if self.pseudonym else f'{self.last_name} {self.first_name}'
 
 
 class Country(models.Model):
@@ -61,14 +64,26 @@ class Bibliography(models.Model):
 class Series(models.Model):
     name = models.CharField(_('Серия'), max_length=50)
 
+    def __str__(self):
+        return self.name
+
+
+class Language(models.Model):
+    name = models.CharField(_('Язык'), max_length=30)
+
+    def __str__(self):
+        return self.name
+
 
 class Book(models.Model):
     title = models.CharField(_('Название'), max_length=50)
     authors = models.ManyToManyField('Author', verbose_name=_('Авторы'))
-    genres = models.ManyToManyField('Genre', verbose_name='Жанр', blank=True, null=True)
+    genres = models.ManyToManyField('Genre', verbose_name=_('Жанр'), blank=True)
     image = models.ImageField('Обложка', blank=True, null=True)
-    series = models.ForeignKey('Series', on_delete=models.SET_NULL, verbose_name='серия', blank=True, null=True)
+    series = models.ForeignKey('Series', on_delete=models.SET_NULL, verbose_name=_('серия'), blank=True, null=True)
     publication_date = models.DateField(_('Дата публикации'))
+    text = models.TextField('текст')
+    language = models.ForeignKey('Language', on_delete=models.CASCADE, null=True, verbose_name='Язык')
 
     class Meta:
         verbose_name = _('книга')
