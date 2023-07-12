@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
@@ -21,7 +22,7 @@ class Author(models.Model):
         verbose_name_plural = _('авторы')
 
     def full_name(self):
-        return f'{self.first_name[0]}. {self.last_name}'
+        return self.pseudonym if self.pseudonym else f'{self.first_name[0]}. {self.last_name}'
 
     def __str__(self):
         return self.pseudonym if self.pseudonym else f'{self.last_name} {self.first_name}'
@@ -81,6 +82,7 @@ class Book(models.Model):
     genres = models.ManyToManyField('Genre', verbose_name=_('Жанр'), blank=True)
     image = models.ImageField('Обложка', blank=True, null=True)
     series = models.ForeignKey('Series', on_delete=models.SET_NULL, verbose_name=_('серия'), blank=True, null=True)
+    series_number = models.SmallIntegerField(_('Порядок в серии'), blank=True, null=True)
     publication_date = models.DateField(_('Дата публикации'))
     text = models.TextField('текст')
     language = models.ForeignKey('Language', on_delete=models.CASCADE, null=True, verbose_name='Язык')
@@ -91,3 +93,24 @@ class Book(models.Model):
 
     def __str__(self):
         return f'{self.title}'
+
+    def get_series(self):
+        if self.series:
+            return f'{self.series} ({self.series_number})'
+
+    def get_authors(self):
+        if self.authors.count() > 1:
+            return {'data': ', '.join([author.full_name() for author in self.authors.all()]), 'title': 'Авторы'}
+        return {'title': 'Автор', 'data': self.authors.first().full_name()}
+
+    get_authors.short_description = 'Авторы'
+
+    def get_image(self):
+        return mark_safe(f'<img src="{self.image.url}" height="250px" width="167px"/>')
+
+    get_image.short_description = 'Обложка'
+
+    def get_genres(self):
+        if self.genres.count() > 1:
+            return ', '.join([genre.name for genre in self.genres.all()])
+        return self.genres.first().name

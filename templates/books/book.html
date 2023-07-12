@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load tags %}
+{% block content %}
+  <div id="book">
+    {{ book.get_image }}
+    <h1>{{ book.title }}</h1>
+    {% if book.series %}
+      <p>{{ book.get_series }}</p>
+    {% endif %}
+    <p>{{ book.get_authors.data }}</p>
+    <p>{{ book.publication_date|date:"d.m.Y" }}</p>
+    <p>{{ book.get_genres }}</p>
+  </div>
+
+  <div id="book-text">
+    {% splice book.text %}
+{#    {{ book.text|safe|linebreaks }}#}
+  </div>
+{% endblock content %}
