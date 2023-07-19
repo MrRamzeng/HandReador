@@ -114,3 +114,17 @@ class Book(models.Model):
         if self.genres.count() > 1:
             return ', '.join([genre.name for genre in self.genres.all()])
         return self.genres.first().name
+
+
+class Keycap(models.Model):
+    language = models.ForeignKey('Language', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Язык')
+    symbol = models.CharField('Кнопка', max_length=10)
+    position = models.SmallIntegerField('Позиция')
+
+    class Meta:
+        verbose_name = 'Кнопка'
+        verbose_name_plural = 'Кнопки'
+        ordering = ('position', )
+
+    def __str__(self):
+        return f'{self.symbol} - {self.position}'

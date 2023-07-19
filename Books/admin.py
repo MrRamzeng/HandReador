@@ -1,11 +1,12 @@
 from django.contrib import admin
 
-from .models import Author, Country, Genre, Series, Book, Language
+from .models import Author, Country, Genre, Keycap, Book, Language
 
 admin.site.register(Author)
 admin.site.register(Country)
 admin.site.register(Genre)
 admin.site.register(Language)
+admin.site.register(Keycap)
 
 
 @admin.register(Book)
@@ -31,5 +32,4 @@ class BookAdmin(admin.ModelAdmin):
 
     @admin.display(description='Авторы')
     def get_authors(self, obj):
-        print(dir(self))
         return obj.get_authors()['data']

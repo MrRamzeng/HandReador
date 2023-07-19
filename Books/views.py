@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 
-from .models import Book
+from .models import Book, Keycap
 
 
 def index(request):
@@ -18,3 +18,8 @@ class Books(ListView):
 class BookDetailView(DetailView):
     model = Book
     template_name = 'books/book.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['keycaps'] = Keycap.objects.all()
+        return context

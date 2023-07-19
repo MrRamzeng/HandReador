@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load tags %}
 {% block content %}
+  {% include 'keyboard.html' %}
   <div id="book">
     {{ book.get_image }}
     <h1>{{ book.title }}</h1>
@@ -8,12 +9,12 @@
       <p>{{ book.get_series }}</p>
     {% endif %}
     <p>{{ book.get_authors.data }}</p>
-    <p>{{ book.publication_date|date:"d.m.Y" }}</p>
+    <p>{{ book.publication_date|date:"d.m.Y" }}г.</p>
     <p>{{ book.get_genres }}</p>
   </div>
 
   <div id="book-text">
-    {% splice book.text %}
-{#    {{ book.text|safe|linebreaks }}#}
+{#    {% splice book.text %}#}
+    {{ book.text|safe|linebreaks }}
   </div>
 {% endblock content %}
