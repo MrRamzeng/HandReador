@@ -21,5 +21,9 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['keys_m'] = [15, 28]
+        context['keys_l'] = [14, 29, 41]
+        context['keys_xl'] = [42, 53]
+        context['keys_xxl'] = [56, 55]
         context['keycaps'] = Keycap.objects.all()
         return context

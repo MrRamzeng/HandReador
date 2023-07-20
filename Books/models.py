@@ -82,7 +82,7 @@ class Book(models.Model):
     genres = models.ManyToManyField('Genre', verbose_name=_('Жанр'), blank=True)
     image = models.ImageField('Обложка', blank=True, null=True)
     series = models.ForeignKey('Series', on_delete=models.SET_NULL, verbose_name=_('серия'), blank=True, null=True)
-    series_number = models.SmallIntegerField(_('Порядок в серии'), blank=True, null=True)
+    series_number = models.PositiveSmallIntegerField(_('Порядок в серии'), blank=True, null=True)
     publication_date = models.DateField(_('Дата публикации'))
     text = models.TextField('текст')
     language = models.ForeignKey('Language', on_delete=models.CASCADE, null=True, verbose_name='Язык')
@@ -119,12 +119,40 @@ class Book(models.Model):
 class Keycap(models.Model):
     language = models.ForeignKey('Language', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Язык')
     symbol = models.CharField('Кнопка', max_length=10)
-    position = models.SmallIntegerField('Позиция')
+    position = models.PositiveIntegerField('Позиция')
+    LEFT = 'Левый'
+    RIGHT = 'Правый'
+    SIDES = (
+        (LEFT, 'Левый'),
+        (RIGHT, 'Правый')
+    )
+    LITTLE = 1
+    RING = 2
+    MIDDLE = 3
+    INDEX = 4
+    THUMB = 5
+    FINGERS = (
+        (LITTLE, 'Мизинец'),
+        (RING, 'Безымянный'),
+        (MIDDLE, 'Средний'),
+        (INDEX, 'Указательный'),
+        (THUMB, 'Большой')
+    )
+    side = models.CharField(_('Сторона'), max_length=10, choices=SIDES, default=LEFT)
+    finger = models.CharField(_('Палец'), max_length=15, choices=FINGERS, default=LITTLE)
 
     class Meta:
         verbose_name = 'Кнопка'
         verbose_name_plural = 'Кнопки'
-        ordering = ('position', )
+        ordering = ('position',)
+
+    def get_finger(self):
+        print(self.finger)
 
     def __str__(self):
         return f'{self.symbol} - {self.position}'
+
+# class Finger(models.Model):
+#
+#     def __str__(self):
+#         return f'{self.side} - {self.number}'
