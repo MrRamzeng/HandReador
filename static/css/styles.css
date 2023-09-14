@@ -1,0 +1,87 @@
+
+.f1 {
+    background-color: #E2FF63;
+}
+
+.f1-hover {
+    background-color: #FFF99E;
+}
+
+.f2 {
+    background-color: #DED157;
+}
+
+.f2-hover {
+    background-color: #DBC988;
+}
+
+.f3 {
+    background-color: #F5D36C;
+}
+
+.f3-hover {
+    background-color: #F2D4A1;
+}
+
+.f4 {
+    background-color: #DEA857;
+}
+
+.f4-hover {
+    background-color: #DBAC88;
+}
+
+.f5 {
+    background-color: #FDA36A;
+}
+
+.f5-hover {
+    background-color: #FDB7A4;
+}
+
+.board {
+    width: min-content;
+    padding: 20px;
+    background-color: rgb(197, 197, 197);
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(30, 30px);
+    grid-template-rows: repeat(5, 60px);
+    grid-gap: 3px;
+}
+
+.keycap {
+    border: 2px solid gray;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-around;
+    grid-column: span 2;
+    font-size: 16px;
+    text-align: center;
+    padding: 0 6px;
+}
+
+.keycap-hover {
+    border: 1px solid #eeeeee;
+}
+
+.key-l {
+    grid-column: span 4;
+}
+
+.key-m {
+    grid-column: span 3;
+}
+
+.key-xl {
+    grid-column: span 5;
+}
+
+.key-alt {
+    grid-column-start: 7;
+    grid-column-end: 9;
+}
+
+.key-xxl {
+    grid-column: span 6;
+}

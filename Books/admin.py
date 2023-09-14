@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from .models import Author, Country, Genre, Keycap, Book, Language
+from .models import Author, Country, Genre, Keycap, Symbol, Book, Language
 
 admin.site.register(Author)
 admin.site.register(Country)
 admin.site.register(Genre)
 admin.site.register(Language)
 admin.site.register(Keycap)
+admin.site.register(Symbol)
 
 
 @admin.register(Book)
@@ -19,7 +20,10 @@ class BookAdmin(admin.ModelAdmin):
         (
             'О книге',
             {
-                'fields': ('authors', 'genres', ('series', 'series_number'), ('title', 'image', 'language'),)
+                'fields': (
+                    'authors', 'genres', ('series', 'series_number'),
+                    ('title', 'image', 'language', 'publication_date'),
+                )
             }
         ),
         (

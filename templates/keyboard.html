@@ -1,9 +1,7 @@
 {% load tags %}
 <div class="board">
-  {% regroup keycaps by position as keycaps %}
-  {{ caps }}
   {% for keycap in keycaps %}
-    <button id="keycap-{{ forloop.counter }}" class="keycap
+    <button id="{{ keycap.code }}" class="keycap
             {% if forloop.counter in keys_l %}
             key-l
             {% elif forloop.counter in keys_m %}
@@ -15,61 +13,11 @@
             {% elif forloop.counter in keys_xxl %}
             key-xxl
             {% endif %}
+            f{{ keycap.finger }}
             ">
-      {% for symbol in keycap.list %}
-        {{ symbol.symbol }}
+      {% for symbol in keycap.symbols.all %}
+        <div class="symbol">{{ symbol.name }}</div>
       {% endfor %}
     </button>
   {% endfor %}
 </div>
-
-<style>
-    .board {
-        width: min-content;
-        padding: 20px;
-        background-color: rgb(197, 197, 197);
-        border-radius: 10px;
-        display: grid;
-        grid-template-columns: repeat(30, 30px);
-        grid-template-rows: repeat(5, 60px);
-        grid-gap: 3px;
-    }
-
-    .keycap {
-        background-color: rgb(243, 243, 243);
-        border: 2px solid gray;
-        border-radius: 5px;
-        grid-column: span 2;
-        font-size: 20px;
-        text-align: center;
-        padding-top: 17px;
-    }
-
-    .keycap:hover {
-        border: 1px solid #eeeeee;
-    }
-
-    .key-l {
-        grid-column: span 4;
-    }
-
-    .key-m {
-        grid-column: span 3;
-    }
-
-    .key-xl {
-        grid-column: span 5;
-    }
-
-    .key-alt {
-        grid-column-start: 7;
-        grid-column-end: 9;
-    }
-
-    .key-xxl {
-        grid-column: span 6;
-    }
-</style>
-<script>
-
-</script>

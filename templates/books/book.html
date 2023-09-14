@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+  {% load tags %}
   {% include 'keyboard.html' %}
   <div id="book">
-    {{ book.get_image }}
     <h1>{{ book.title }}</h1>
     {% if book.series %}
       <p>{{ book.get_series }}</p>
@@ -11,9 +11,68 @@
     <p>{{ book.publication_date|date:"d.m.Y" }}г.</p>
     <p>{{ book.get_genres }}</p>
   </div>
+  <div id="text-container" contenteditable="true" autofocus></div>
+  <script>
+    let pos = 0;
 
-  <div id="book-text">
-{#    {% splice book.text %}#}
-    {{ book.text|safe|linebreaks }}
-  </div>
+    let inp = document.getElementById('text-container');
+    text = `{{ book.text|safe }}`.replace('\n', '')
+    inp.innerHTML = text;
+
+    function setCaret(el, pos) {
+      let range = document.createRange();
+      let sel = window.getSelection();
+      console.log(`   range: ${range}\n   child 1: ${el.childNodes[0].childNodes[0]}`);
+      range.setStart(el.childNodes[0].childNodes[0], pos);
+      range.collapse(true);
+
+      sel.removeAllRanges();
+      sel.addRange(range);
+     }
+
+    let enteredValue = '';
+
+    let currentLine = inp.firstChild.textContent
+
+    let errors = 0;
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+      console.log(`${'-'.repeat(81)}\nThe line contains:\n"""\n${currentLine}\n"""\nThe first char is '${currentLine[0]}'.\n${'-'.repeat(81)}`);
+    });
+
+    inp.addEventListener('keypress', function (e) {
+      if (e.repeat === false) {
+        if (e.key === inp.textContent[pos]) {
+          console.log('The chars are equal.');
+          inp.firstChild.textContent = enteredValue + currentLine.slice(pos);
+          enteredValue += e.key;
+          e.preventDefault()
+          pos++;
+
+        } else if (e.key === 'Enter' && currentLine.charCodeAt(pos) === 182) {
+          inp.firstChild.remove();
+          if (inp.textContent === '') {
+            console.log('-'.repeat(81));
+            console.log(' '.repeat(34) + 'The end');
+            console.log('-'.repeat(81));
+
+            if (confirm(`Книга прочитана!\nОшибок: ${errors}`)) {
+              errors = 0
+              inp.innerHTML = text;
+            }
+          }
+          pos = 0, enteredValue = '';
+          currentLine = inp.firstChild.textContent;
+          console.log(`${'-'.repeat(81)}\nThe new line contains:\n\n${currentLine}\n\nThe first char is '${currentLine[0]}'.\n${'-'.repeat(81)}`);
+          e.preventDefault()
+        } else {
+          console.log(`The entered char is '${e.key}' not '${currentLine[pos]}'!`)
+          errors++;
+          e.preventDefault()
+        }
+        setCaret(inp, pos);
+      }
+      console.log(`The next char is '${currentLine[pos]}' at position ${pos+1}.`)
+    });
+  </script>
 {% endblock content %}

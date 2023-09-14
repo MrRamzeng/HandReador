@@ -24,6 +24,6 @@ class BookDetailView(DetailView):
         context['keys_m'] = [15, 28]
         context['keys_l'] = [14, 29, 41]
         context['keys_xl'] = [42, 53]
-        context['keys_xxl'] = [56, 55]
+        context['keys_xxl'] = [55, 56]
         context['keycaps'] = Keycap.objects.all()
         return context

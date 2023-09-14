@@ -106,7 +106,9 @@ class Book(models.Model):
     get_authors.short_description = 'Авторы'
 
     def get_image(self):
-        return mark_safe(f'<img src="{self.image.url}" height="250px" width="167px"/>')
+        if self.image:
+            return mark_safe(f'<img src="{self.image.url}" height="250px" width="167px"/>')
+        return
 
     get_image.short_description = 'Обложка'
 
@@ -117,9 +119,9 @@ class Book(models.Model):
 
 
 class Keycap(models.Model):
-    language = models.ForeignKey('Language', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Язык')
-    symbol = models.CharField('Кнопка', max_length=10)
+    # language = models.ForeignKey('Language', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Язык')
     position = models.PositiveIntegerField('Позиция')
+    symbols = models.ManyToManyField('Symbol', verbose_name=_('Символы'))
     LEFT = 'Левый'
     RIGHT = 'Правый'
     SIDES = (
@@ -132,27 +134,27 @@ class Keycap(models.Model):
     INDEX = 4
     THUMB = 5
     FINGERS = (
-        (LITTLE, 'Мизинец'),
-        (RING, 'Безымянный'),
-        (MIDDLE, 'Средний'),
-        (INDEX, 'Указательный'),
-        (THUMB, 'Большой')
+        ('1', LITTLE),
+        ('2', RING),
+        ('3', MIDDLE),
+        ('4', INDEX),
+        ('5', THUMB)
     )
     side = models.CharField(_('Сторона'), max_length=10, choices=SIDES, default=LEFT)
     finger = models.CharField(_('Палец'), max_length=15, choices=FINGERS, default=LITTLE)
+    code = models.CharField('Код', max_length=15, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Кнопка'
         verbose_name_plural = 'Кнопки'
         ordering = ('position',)
 
-    def get_finger(self):
-        print(self.finger)
+    def __str__(self):
+        return f'{", ".join(self.symbols.values_list("name", flat=True))} - {self.position}'
+
+
+class Symbol(models.Model):
+    name = models.CharField('Кнопка', max_length=10)
 
     def __str__(self):
-        return f'{self.symbol} - {self.position}'
-
-# class Finger(models.Model):
-#
-#     def __str__(self):
-#         return f'{self.side} - {self.number}'
+        return self.name
