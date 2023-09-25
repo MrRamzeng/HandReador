@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 def image_path(instance, file):
@@ -84,7 +85,7 @@ class Book(models.Model):
     series = models.ForeignKey('Series', on_delete=models.SET_NULL, verbose_name=_('серия'), blank=True, null=True)
     series_number = models.PositiveSmallIntegerField(_('Порядок в серии'), blank=True, null=True)
     publication_date = models.DateField(_('Дата публикации'))
-    text = models.TextField('текст')
+    text = RichTextUploadingField('Текст')
     language = models.ForeignKey('Language', on_delete=models.CASCADE, null=True, verbose_name='Язык')
 
     class Meta:

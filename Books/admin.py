@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Author, Country, Genre, Keycap, Symbol, Book, Language
+from .models import Author, Country, Genre, Keycap, Symbol, Book, Language, Series
 
 admin.site.register(Author)
 admin.site.register(Country)
@@ -8,6 +8,7 @@ admin.site.register(Genre)
 admin.site.register(Language)
 admin.site.register(Keycap)
 admin.site.register(Symbol)
+admin.site.register(Series)
 
 
 @admin.register(Book)

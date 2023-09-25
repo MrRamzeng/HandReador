@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -9,5 +10,5 @@ def get_all_attrs(var):
 
 
 @register.simple_tag
-def splice(text):
-    return text.replace('&para;', '\n')
+def tagger(text):
+    return list(text)

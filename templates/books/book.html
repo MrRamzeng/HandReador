@@ -1,78 +1,148 @@
 {% extends "base.html" %}
 {% block content %}
   {% load tags %}
-  {% include 'keyboard.html' %}
-  <div id="book">
-    <h1>{{ book.title }}</h1>
-    {% if book.series %}
-      <p>{{ book.get_series }}</p>
-    {% endif %}
-    <p>{{ book.get_authors.data }}</p>
-    <p>{{ book.publication_date|date:"d.m.Y" }}г.</p>
-    <p>{{ book.get_genres }}</p>
-  </div>
-  <div id="text-container" contenteditable="true" autofocus></div>
+{#  {% include 'keyboard.html' %}#}
+{#  <div id="book">#}
+{#    <h1>{{ book.title }}</h1>#}
+{#    {% if book.series %}#}
+{#      <p>{{ book.get_series }}</p>#}
+{#    {% endif %}#}
+{#    <p>{{ book.get_authors.data }}</p>#}
+{#    <p>{{ book.publication_date|date:"d.m.Y" }}г.</p>#}
+{#    <p>{{ book.get_genres }}</p>#}
+{#  </div>#}
+  <div id="text-container" style="margin: 0 auto" contenteditable="true" onselectstart="return false" onpaste="return false;" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false"  onblur="this.focus()" autofocus></div>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script>
-    let pos = 0;
+    const regex = /<[^<>]+>|(?<sym>[\b&\w\d;\b])+|(.+?)(?!<sym>)/g;
+    const regexSym = /&(.*);/
+    const symbols = {
+      '-': [8211, 8210, 8212, 8213],
+      '"': [8220, 8221, 8222, 8223],
+    }
+
+    function getText(text) {
+      let dataArr = text.match(regex);
+      let result = '';
+      let word = '';
+      let strLength = 0;
+      let wordLength = 0;
+
+      dataArr.forEach((item) => {
+        if (item.length === 1 || regexSym.test(item)) {
+          word += `<font>${item}</font>`;
+          strLength++;
+          wordLength++;
+          if ([' ', '&para;'].includes(item)) {
+            if (strLength <= 90) {
+              result += word;
+              if (item === '&para;') { strLength = 0; }
+            } else {
+              result += '<br>' + word;
+              strLength = item === ' ' ? wordLength : 0;
+            }
+            word = '';
+            wordLength = 0;
+          }
+        } else {
+          result += item;
+        }
+      })
+      return result
+    }
+
+    const text = getText(`{{ book.text|safe }}`);
 
     let inp = document.getElementById('text-container');
-    text = `{{ book.text|safe }}`.replace('\n', '')
-    inp.innerHTML = text;
+    inp.innerHTML = text
 
-    function setCaret(el, pos) {
-      let range = document.createRange();
-      let sel = window.getSelection();
-      console.log(`   range: ${range}\n   child 1: ${el.childNodes[0].childNodes[0]}`);
-      range.setStart(el.childNodes[0].childNodes[0], pos);
-      range.collapse(true);
-
-      sel.removeAllRanges();
-      sel.addRange(range);
-     }
-
-    let enteredValue = '';
-
-    let currentLine = inp.firstChild.textContent
-
+    let pos = 0;
     let errors = 0;
-
-    document.addEventListener("DOMContentLoaded", function(event) {
-      console.log(`${'-'.repeat(81)}\nThe line contains:\n"""\n${currentLine}\n"""\nThe first char is '${currentLine[0]}'.\n${'-'.repeat(81)}`);
-    });
+    let children = Array.from(inp.firstChild.children);
 
     inp.addEventListener('keypress', function (e) {
-      if (e.repeat === false) {
-        if (e.key === inp.textContent[pos]) {
-          console.log('The chars are equal.');
-          inp.firstChild.textContent = enteredValue + currentLine.slice(pos);
-          enteredValue += e.key;
-          e.preventDefault()
+      if (!e.repeat) {
+        if (e.key.charCodeAt(0) === inp.textContent.charCodeAt(pos) || symbols[e.key]) {
+          inp.firstChild.children[pos].style.cssText = 'color: lightgrey';
           pos++;
+          if (inp.firstChild.children[pos].tagName === 'BR') {
+            children.splice(0, pos+1);
+            inp.firstChild.innerHTML = children.map(e => e.outerHTML).join('')
+            pos = 0;
+            inp.firstChild.style.cssText = 'text-indent: 0;'
+          }
 
-        } else if (e.key === 'Enter' && currentLine.charCodeAt(pos) === 182) {
+          e.preventDefault();
+          {#setCaret(inp, pos);#}
+        } else if (e.key === 'Enter' && (inp.textContent.charCodeAt(pos) === 182)) {
           inp.firstChild.remove();
           if (inp.textContent === '') {
-            console.log('-'.repeat(81));
-            console.log(' '.repeat(34) + 'The end');
-            console.log('-'.repeat(81));
-
             if (confirm(`Книга прочитана!\nОшибок: ${errors}`)) {
               errors = 0
               inp.innerHTML = text;
             }
           }
-          pos = 0, enteredValue = '';
-          currentLine = inp.firstChild.textContent;
-          console.log(`${'-'.repeat(81)}\nThe new line contains:\n\n${currentLine}\n\nThe first char is '${currentLine[0]}'.\n${'-'.repeat(81)}`);
+          children = Array.from(inp.firstChild.children)
+
+          pos = 0
+          if (inp.firstChild.tagName === 'P') {
+            inp.firstChild.style.cssText = 'text-indent: 20;'
+          }
           e.preventDefault()
+
         } else {
-          console.log(`The entered char is '${e.key}' not '${currentLine[pos]}'!`)
           errors++;
+          inp.firstChild.children[pos].classList.add('error');
+          setTimeout(() => inp.firstChild.children[pos].classList.remove('error'), 200);
           e.preventDefault()
         }
-        setCaret(inp, pos);
       }
-      console.log(`The next char is '${currentLine[pos]}' at position ${pos+1}.`)
+      e.preventDefault();
     });
   </script>
+
+  <style>
+    #text-container {
+        padding: 10px;
+        caret-color: transparent;
+        width: max-content;
+    }
+
+    #text-container p {
+        margin: 0 auto;
+        text-indent: 20px;
+    }
+
+    .error {
+        color: red;
+    }
+
+    blockquote {
+      padding-left: 20px;
+      padding-right: 8px;
+      border-left: solid 5px #ccc;
+      font-style: italic;3
+      font-family: Georgia, Times, "Times New Roman", serif;
+      margin-block-start: 1em;
+      margin-block-end: 1em;
+      margin-inline-start: 40px;
+      margin-inline-end: 40px;
+    }
+  </style>
 {% endblock content %}
+
+
+
+      {#paragraphs.forEach((p) => {#}
+      {#  let symbols = p.split('');#}
+      {#  symbols.forEach((char, counter) => {#}
+      {#    if (!(counter % 100) && counter > 0) {#}
+      {#      tags.splice(insPos, 0, '<br>');#}
+      {#      insPos++;#}
+      {#    }#}
+      {#    tags.splice(insPos, 0, char);#}
+      {#    insPos++;#}
+      {#  })#}
+      {#  insPos += 2;#}
+      {# })#}
+      {#return tags.join('')#}
